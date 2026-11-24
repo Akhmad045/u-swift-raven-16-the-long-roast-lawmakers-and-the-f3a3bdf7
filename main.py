@@ -29,6 +29,12 @@ def main() -> None:
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as fh:
         fh.write(text)
+    # Verify the written bytes round-trip exactly: a half-written or
+    # re-encoded file would silently change the judged line.
+    with open(OUTPUT_PATH, "rb") as fh:
+        written = fh.read()
+    if written.decode("utf-8") != text or len(written) != len(text.encode("utf-8")):
+        raise RuntimeError("entry.txt does not round-trip exactly")
     print(f"wrote {len(text)} characters to {OUTPUT_PATH}")
 
 
